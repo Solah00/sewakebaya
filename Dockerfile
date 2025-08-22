@@ -1,28 +1,34 @@
-FROM php:8.1-fpm
+# Gunakan PHP + Apache
+FROM php:8.2-apache
 
-# Install dependencies
+# Paket sistem yang dibutuhkan
 RUN apt-get update && apt-get install -y \
-    unzip zip git curl libzip-dev libonig-dev libxml2-dev \
-    && docker-php-ext-install pdo pdo_mysql zip mbstring
+    git unzip libzip-dev libicu-dev libonig-dev libxml2-dev \
+    && docker-php-ext-install pdo pdo_mysql zip intl \
+    && a2enmod rewrite
 
-# Install Composer
+# DocumentRoot ke /public
+RUN sed -i 's#DocumentRoot /var/www/html#DocumentRoot /var/www/html/public#g' /etc/apache2/sites-available/000-default.conf
+
+# Workdir
+WORKDIR /var/www/html
+
+# Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Set working directory
-WORKDIR /var/www
+# Copy source code
+COPY . /var/www/html
 
-# Copy all project files
-COPY . .
+# Install dep (tanpa dev) + optimasi
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress \
+ && php artisan config:clear || true \
+ && php artisan route:clear || true \
+ && php artisan view:clear  || true \
+ && chown -R www-data:www-data storage bootstrap/cache
 
-# Install Laravel dependencies
-RUN composer install --optimize-autoloader --no-dev
+# Script start
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www \
-    && chmod -R 775 storage bootstrap/cache
-
-# Expose port
-EXPOSE 8000
-
-# Start Laravel server
-CMD php artisan serve --host=0.0.0.0 --port=${PORT}
+EXPOSE 80
+CMD ["start.sh"]
