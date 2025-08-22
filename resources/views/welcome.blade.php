@@ -231,6 +231,7 @@
 </div>
 
 
+
 {{-- Footer --}}
 <footer>
     <div class="container">
@@ -250,12 +251,29 @@
             </div>
             <div class="col-md-3 mb-4">
                 <h6>Kontak</h6>
-                <p><i class="bi bi-geo-alt"></i> Jl. pancor</p>
-                <p><i class="bi bi-telephone"></i> 0812-3456-7890</p>
+                <p><i class="bi bi-geo-alt"></i> Jl. Otak pancor lendang nangka utara</p>
+                <p><i class="bi bi-telephone"></i> 0819-1690-9546</p>
                 <p><i class="bi bi-envelope"></i> info@kebayacantik.com</p>
             </div>
         </div>
     </div>
+
+            <!-- Kolom Lokasi (Google Maps) -->
+            <div class="col-md-12 mt-3">
+                <h6 class="text-center mb-4">Lokasi Kami</h6>
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3945.004787740001!2d116.4298!3d-8.5869614!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dcc4ac68eda5d9d%3A0xcfa97b2b35d76f6c!2sMasjid%20NURUL%20YAQIN!5e0!3m2!1sid!2sid!4v1691750000000!5m2!1sid!2sid" 
+                    width="100%" 
+                    height="250" 
+                    style="border:0;" 
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+        </div>
+    </div>
+
     <div class="footer-bottom text-center">
         &copy; {{ date('Y') }} Kebaya Cantik - All Rights Reserved
     </div>
