@@ -1,14 +1,27 @@
 FROM php:8.2-apache
 
-# Install ekstensi Laravel
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    libzip-dev unzip git curl && \
-    docker-php-ext-install pdo pdo_mysql zip
+    libzip-dev unzip git curl \
+    && docker-php-ext-install pdo pdo_mysql zip
 
-# Copy project ke container
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Copy project
 COPY . /var/www/html
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+CMD ["/usr/local/bin/start.sh"]
 
-# Set DocumentRoot Apache ke /public
+
+# Set working dir
+WORKDIR /var/www/html
+
+# Install Laravel dependencies (production only, no dev packages)
+RUN composer install --no-dev --optimize-autoloader
+
+# Set Apache DocumentRoot ke /public
 RUN echo '<VirtualHost *:80>\n\
     DocumentRoot /var/www/html/public\n\
     <Directory /var/www/html/public>\n\
@@ -21,8 +34,8 @@ RUN echo '<VirtualHost *:80>\n\
 # Enable mod_rewrite
 RUN a2enmod rewrite
 
-# Set permission untuk Laravel
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
-    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# Laravel storage permission
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-WORKDIR /var/www/html
+EXPOSE 80
