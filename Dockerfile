@@ -1,10 +1,10 @@
 # Gunakan PHP 8 dengan Apache
 FROM php:8.1-apache
 
-# Install dependency Laravel
+# Install dependency Laravel + PostgreSQL PDO
 RUN apt-get update && apt-get install -y \
-    libzip-dev zip unzip git curl \
-    && docker-php-ext-install zip pdo pdo_mysql
+    libzip-dev zip unzip git curl libpq-dev \
+    && docker-php-ext-install zip pdo pdo_mysql pdo_pgsql
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
