@@ -93,9 +93,9 @@
     <i class="bi bi-bar-chart"></i> Laporan
 </a>
 
-<a href="#">
+<!-- <a href="#">
     <i class="bi bi-gear"></i> Pengaturan
-</a>
+</a> -->
 
 
     </div>

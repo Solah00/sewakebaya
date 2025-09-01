@@ -1,28 +1,32 @@
-FROM php:8.1-fpm
+# Gunakan PHP 8 dengan Apache
+FROM php:8.1-apache
 
-# Install dependencies
+# Install dependency Laravel
 RUN apt-get update && apt-get install -y \
-    unzip zip git curl libzip-dev libonig-dev libxml2-dev \
-    && docker-php-ext-install pdo pdo_mysql zip mbstring
+    libzip-dev zip unzip git curl \
+    && docker-php-ext-install zip pdo pdo_mysql
 
 # Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Salin semua file ke dalam container
+COPY . /var/www/html/
 
 # Set working directory
-WORKDIR /var/www
+WORKDIR /var/www/html
 
-# Copy all project files
-COPY . .
+# Set permission (opsional tergantung error)
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
 
-# Install Laravel dependencies
-RUN composer install --optimize-autoloader --no-dev
+# Install dependency Laravel
+RUN composer install --no-interaction --optimize-autoloader
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www \
-    && chmod -R 775 storage bootstrap/cache
+# Copy konfigurasi Apache agar mengarah ke public/
+RUN echo "DocumentRoot /var/www/html/public" > /etc/apache2/sites-enabled/000-default.conf
 
-# Expose port
-EXPOSE 8000
+# Aktifkan mod_rewrite (wajib untuk Laravel routing)
+RUN a2enmod rewrite
 
-# Start Laravel server
-CMD php artisan serve --host=0.0.0.0 --port=${PORT}
+# Copy file .env.production jika kamu buat secara khusus
+# COPY .env.production .env

@@ -94,7 +94,7 @@
     <li class="nav-item"><a class="nav-link" href="{{ url('/') }}">Beranda</a></li>
     <li class="nav-item"><a class="nav-link" href="{{ route('katalog') }}">Kebaya</a></li>
     <li class="nav-item"><a class="nav-link" href="{{ route('favorite') }}">Favorit</a></li>
-    <li class="nav-item"><a class="nav-link" href="#">Akun</a></li>
+    <li class="nav-item"><a class="nav-link" href="{{ url('/admin/login') }}">Login</a></li>
 </ul>
 
         </div>
@@ -105,7 +105,7 @@
 <div class="container py-5">
     <div class="row align-items-center">
         <div class="col-md-6">
-            <h1 class="display-5 fw-bold text-danger">Selamat Datang di Kebaya Cantik</h1>
+            <h1 class="display-5 fw-bold text-danger">Selamat Datang di toko sewa kebaya sr elegant dress</h1>
             <p class="lead">Kami menyediakan penyewaan kebaya modern, tradisional, dan eksklusif untuk berbagai acara penting Anda seperti pernikahan, lamaran, wisuda, dan lainnya.</p>
             <a href="#katalog" class="btn btn-danger mt-3">Lihat Koleksi</a>
         </div>
@@ -137,7 +137,7 @@
                             @endphp
                             <div class="rating mb-2">{{ $bintang }}</div>
 
-                            <a href="https://wa.me/6281234567890?text=Halo%2C%20saya%20ingin%20menyewa%20kebaya%20{{ urlencode($kebaya->nama) }}" target="_blank" class="btn btn-wa w-100 mb-3">Sewa via WhatsApp</a>
+                            <a href="https://wa.me/6281916909546?text=Halo%2C%20saya%20ingin%20menyewa%20kebaya%20{{ urlencode($kebaya->nama) }}" target="_blank" class="btn btn-wa w-100 mb-3">Sewa via WhatsApp</a>
 
                             {{-- Form Ulasan --}}
                             <form action="{{ route('ulasan.store') }}" method="POST" class="text-start mb-3">
@@ -235,10 +235,13 @@
 <footer>
     <div class="container">
         <div class="row">
+            <!-- Kolom Deskripsi -->
             <div class="col-md-6 mb-4">
                 <h5 class="text-danger">Kebaya Cantik</h5>
                 <p>Penyedia penyewaan kebaya terbaik dengan koleksi modern, elegan, dan tradisional. Kami siap membantu Anda tampil memukau di hari spesial Anda.</p>
             </div>
+
+            <!-- Kolom Menu -->
             <div class="col-md-3 mb-4">
                 <h6>Menu</h6>
                 <ul class="list-unstyled">
@@ -248,18 +251,36 @@
                     <li><a href="#" class="text-reset">Kontak</a></li>
                 </ul>
             </div>
+
+            <!-- Kolom Kontak -->
             <div class="col-md-3 mb-4">
                 <h6>Kontak</h6>
-                <p><i class="bi bi-geo-alt"></i> Jl. pancor</p>
-                <p><i class="bi bi-telephone"></i> 0812-3456-7890</p>
+                <p><i class="bi bi-geo-alt"></i> Jl. Otak pancor lendang nangka utara</p>
+                <p><i class="bi bi-telephone"></i> 0819-1690-9546</p>
                 <p><i class="bi bi-envelope"></i> info@kebayacantik.com</p>
+            </div>
+
+            <!-- Kolom Lokasi (Google Maps) -->
+            <div class="col-md-12 mt-3">
+                <h6>Lokasi Kami</h6>
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3945.004787740001!2d116.4298!3d-8.5869614!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dcc4ac68eda5d9d%3A0xcfa97b2b35d76f6c!2sMasjid%20NURUL%20YAQIN!5e0!3m2!1sid!2sid!4v1691750000000!5m2!1sid!2sid" 
+                    width="100%" 
+                    height="250" 
+                    style="border:0;" 
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
             </div>
         </div>
     </div>
+
     <div class="footer-bottom text-center">
         &copy; {{ date('Y') }} Kebaya Cantik - All Rights Reserved
     </div>
 </footer>
+
 
 {{-- Script tombol ulasan --}}
 <script>
