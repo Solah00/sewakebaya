@@ -2,15 +2,10 @@ services:
   - type: web
     name: kebayaku
     env: docker
-    dockerfilePath: ./Dockerfile
-    autoDeploy: true
-    buildCommand: |
-      composer install --no-dev --optimize-autoloader
-      php artisan config:clear
-      php artisan cache:clear
-      php artisan route:clear
-      php artisan view:clear
-    startCommand: apache2-foreground
+    plan: starter
+    dockerfilePath: Dockerfile
+    buildCommand: "composer install --no-dev --optimize-autoloader"
+    startCommand: "apache2-foreground"
     envVars:
       - key: APP_ENV
         value: production
@@ -30,3 +25,5 @@ services:
         value: freedb_kebaya
       - key: DB_PASSWORD
         value: YCr*M?*jk6vAA9Q
+      - key: APP_URL
+        value: https://kebayaku.onrender.com
