@@ -1,32 +1,43 @@
-# Gunakan PHP 8 dengan Apache
+# Gunakan PHP 8.1 + Apache
 FROM php:8.1-apache
 
-# Install dependency Laravel
+# Install dependencies dan ekstensi untuk Laravel + MySQL
 RUN apt-get update && apt-get install -y \
-    libzip-dev zip unzip git curl \
-    && docker-php-ext-install zip pdo pdo_mysql
+    git \
+    curl \
+    zip \
+    unzip \
+    libonig-dev \
+    libxml2-dev \
+    default-mysql-client \
+    && docker-php-ext-install pdo pdo_mysql mbstring xml
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Salin semua file ke dalam container
-COPY . /var/www/html/
+# Aktifkan mod_rewrite Apache
+RUN a2enmod rewrite
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Set permission (opsional tergantung error)
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+# Copy semua file project
+COPY . .
 
-# Install dependency Laravel
-RUN composer install --no-interaction --optimize-autoloader
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Copy konfigurasi Apache agar mengarah ke public/
-RUN echo "DocumentRoot /var/www/html/public" > /etc/apache2/sites-enabled/000-default.conf
+# Install dependencies Laravel
+RUN composer install --no-dev --optimize-autoloader
 
-# Aktifkan mod_rewrite (wajib untuk Laravel routing)
-RUN a2enmod rewrite
+# Set permission untuk folder storage & cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Copy file .env.production jika kamu buat secara khusus
-# COPY .env.production .env
+# Clear cache Laravel supaya environment baru terbaca
+RUN php artisan config:clear
+RUN php artisan cache:clear
+RUN php artisan route:clear
+RUN php artisan view:clear
+
+# Expose port 80
+EXPOSE 80
+
+# Jalankan Apache di foreground
+CMD ["apache2-foreground"]

@@ -1,15 +1,32 @@
 services:
   - type: web
-    name: sewa-kebaya
+    name: kebayaku
     env: docker
     plan: free
     dockerfilePath: ./Dockerfile
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+      php artisan config:clear
+      php artisan cache:clear
+      php artisan route:clear
+      php artisan view:clear
+    startCommand: apache2-foreground
     envVars:
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
       - key: APP_KEY
-        generateValue: true
-      - key: APP_URL
-        value: https://sewa-kebaya.onrender.com
+        value: base64:dpxW8qDE5+s44Egk0sJBF4vlwYZF9sS7sgD28VjAjPA=
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        value: sql.freedb.tech
+      - key: DB_PORT
+        value: 3306
+      - key: DB_DATABASE
+        value: freedb_kebaya
+      - key: DB_USERNAME
+        value: freedb_kebaya
+      - key: DB_PASSWORD
+        value: YCr*M?*jk6vAA9Q
