@@ -21,8 +21,14 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd
 
-# Copy project files
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    # Copy project files
 COPY . /var/www/html
+
+
+# Install PHP dependencies
+RUN composer install --optimize-autoloader --no-dev
 
 # Set Apache DocumentRoot ke public/
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|' /etc/apache2/sites-available/000-default.conf
