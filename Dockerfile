@@ -4,7 +4,7 @@ FROM php:8.1-apache
 # Set working directory
 WORKDIR /var/www/html
 
-# Install system dependencies
+# Install system dependencies + PHP extensions
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -17,16 +17,16 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     libfreetype6-dev \
     pkg-config \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath zip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd \
+    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath zip gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Set ServerName untuk Apache (suppress warning)
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
-
-# Aktifkan mod_rewrite Apache
+# Aktifkan Apache mod_rewrite
 RUN a2enmod rewrite
+
+# Set ServerName untuk hilangkan warning
+RUN echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf \
+    && a2enconf servername
 
 # Copy project files
 COPY . /var/www/html
@@ -35,13 +35,11 @@ COPY . /var/www/html
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Install PHP dependencies
-RUN composer install --optimize-autoloader --no-dev --no-interaction --prefer-dist
+RUN composer install --optimize-autoloader --no-dev
 
 # Set Apache DocumentRoot ke public/
-RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|' /etc/apache2/sites-available/000-default.conf
-
-# Izinkan .htaccess
-RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|' /etc/apache2/sites-available/000-default.conf \
+    && sed -i 's|<Directory /var/www/>|<Directory /var/www/html/public>|' /etc/apache2/apache2.conf
 
 # Set permission folder Laravel
 RUN chown -R www-data:www-data /var/www/html \
