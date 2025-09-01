@@ -1,42 +1,42 @@
-# Gunakan PHP 8.1 FPM dengan Apache
+# Base image
 FROM php:8.1-apache
 
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
-
-# Install dependencies PHP dan system tools
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
-    curl \
-    zip \
     unzip \
-    libzip-dev \
     libonig-dev \
     libxml2-dev \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libpq-dev \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd \
-    && apt-get clean
+    libzip-dev \
+    zip \
+    curl \
+    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Enable apache mod_rewrite
+RUN a2enmod rewrite
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy semua file Laravel
+# Copy project files
 COPY . .
 
-# Install dependencies Laravel
+# Copy composer from official image
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Install composer dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Set permissions storage & bootstrap/cache
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Set proper permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Configure Apache to serve Laravel's public folder
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|' /etc/apache2/sites-available/000-default.conf \
+    && sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
 # Expose port 80
 EXPOSE 80
 
-# Jalankan Apache di foreground
+# Start Apache
 CMD ["apache2-foreground"]
