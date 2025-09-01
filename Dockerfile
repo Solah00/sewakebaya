@@ -1,42 +1,39 @@
-# Base image
+# Gunakan PHP 8.1 + Apache
 FROM php:8.1-apache
 
-# Install system dependencies
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
-    zip \
-    curl \
+    git unzip libonig-dev libxml2-dev libzip-dev zip curl \
     && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Enable apache mod_rewrite
+# Aktifkan mod_rewrite
 RUN a2enmod rewrite
+
+# Suppress ServerName warning
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy project files
+# Copy seluruh project
 COPY . .
 
-# Copy composer from official image
+# Copy Composer dari image resmi
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install composer dependencies
+# Install Composer dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Set proper permissions
+# Set permission yang tepat
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage /var/www/html/bootstrap/cache
+    && chmod -R 755 /var/www/html \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
 
-# Configure Apache to serve Laravel's public folder
+# Configure Apache untuk Laravel public folder
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|' /etc/apache2/sites-available/000-default.conf \
     && sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
-# Expose port 80
 EXPOSE 80
 
-# Start Apache
+# Jalankan Apache di foreground
 CMD ["apache2-foreground"]

@@ -4,8 +4,9 @@ services:
     env: docker
     plan: free
     dockerfilePath: ./Dockerfile
-    buildCommand: "composer install --no-dev --optimize-autoloader"
-    startCommand: "apache2-foreground"
+    buildCommand: ""
+    startCommand: ""
+    autoDeploy: true
     envVars:
       - key: APP_ENV
         value: production
