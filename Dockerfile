@@ -1,43 +1,24 @@
-# Gunakan PHP 8.1 + Apache
+# Gunakan image PHP dengan Apache
 FROM php:8.1-apache
 
-# Install dependencies dan ekstensi untuk Laravel + MySQL
+# Install ekstensi yang dibutuhkan Laravel
 RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    zip \
-    unzip \
-    libonig-dev \
-    libxml2-dev \
-    default-mysql-client \
-    && docker-php-ext-install pdo pdo_mysql mbstring xml
+    libzip-dev zip unzip git curl libonig-dev \
+    && docker-php-ext-install pdo pdo_mysql mbstring zip
 
-# Aktifkan mod_rewrite Apache
+# Enable mod_rewrite untuk Laravel routing
 RUN a2enmod rewrite
 
-# Set working directory
-WORKDIR /var/www/html
+# Set DocumentRoot ke folder public Laravel
+RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
-# Copy semua file project
-COPY . .
+# Copy semua file project ke container
+COPY . /var/www/html
 
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Install dependencies Laravel
-RUN composer install --no-dev --optimize-autoloader
-
-# Set permission untuk folder storage & cache
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Clear cache Laravel supaya environment baru terbaca
-RUN php artisan config:clear
-RUN php artisan cache:clear
-RUN php artisan route:clear
-RUN php artisan view:clear
+# Set permission
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html/storage
 
 # Expose port 80
 EXPOSE 80
-
-# Jalankan Apache di foreground
 CMD ["apache2-foreground"]
