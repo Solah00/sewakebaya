@@ -1,9 +1,11 @@
 # Gunakan PHP 8.1 + Apache
 FROM php:8.1-apache
 
-# Install dependencies
+# Install dependencies dasar + GD libraries
 RUN apt-get update && apt-get install -y \
     git unzip libonig-dev libxml2-dev libzip-dev zip curl \
+    libpng-dev libjpeg-dev libfreetype6-dev pkg-config \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip
 
 # Aktifkan mod_rewrite
